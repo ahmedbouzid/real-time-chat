@@ -13,12 +13,15 @@ services:
       - ./api:/dev2/src/app
       - /dev2/src/app/node_modules
       #Run indebug mode npm run start :debug => also start your vs code debuger
-    command: npm run start:dev
+    # RUN in debug mode: npm run start:debug --> Also start your vscode debugger
+    # Run in dev mode: npm run start:dev
+    command: npm run start:debug
     depends_on: 
-        - mysql  # Change this to "mysql" to use the MySQL service
-    environment:  # <-- Fix the keyword here
+      - mysql
+    environment:
+      DATABASE_URL: mysql://user:password@mysql:3306/db  # Update the connection URL for MySQL
       NODE_ENV: development
-      DATABASE_URL: mysql://user:password@mysql:3306/db  # Change the URL to MySQL format
+      JWT_SECRET: hard_to_guess_secret_123
       PORT: 3000
     ports: 
       - 3000:3000
@@ -36,14 +39,24 @@ services:
       - 4200:4200
     links:
       - api
-  mysql:  # Add MySQL service definition
-    image: mysql:latest  # You can choose the version you need
+  mysql:
+    image: mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: root_password  # Set your MySQL root password
-      MYSQL_DATABASE: db  # Set the database name
-      MYSQL_USER: user  # Set a MySQL user
-      MYSQL_PASSWORD: password  # Set the password for the MySQL user
+      MYSQL_ROOT_PASSWORD: ahmed  # Remplacez par le mot de passe souhaité
+      MYSQL_DATABASE: chat
     ports:
-      - 3306:3306  # Map port 3306 of host to MySQL port 3306
+      - 3306:3306
+
+  # The phpMyAdmin tool for managing MySQL
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - 5050:80
   
     
