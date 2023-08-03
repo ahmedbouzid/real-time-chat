@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  api : 
+    build : 
+      dockerfile: Dockerfile
+      context: ./api
+      target: development
+    #Mount host directory to the docker container
+    # Mount api directory (./api) to (:) docker container (/dev/src/app)
+    # Reflect files change from host to container
+    volumes: 
+      - ./api:/dev2/src/app
+      - /dev2/src/app/node_modules
+      #Run indebug mode npm run start :debug => also start your vs code debuger
+    command: npm run start:dev
+    depends_on: 
+        - mysql  # Change this to "mysql" to use the MySQL service
+    environment:  # <-- Fix the keyword here
+      NODE_ENV: development
+      DATABASE_URL: mysql://user:password@mysql:3306/db  # Change the URL to MySQL format
+      PORT: 3000
+    ports: 
+      - 3000:3000
+      - 9229:9229
+  chatfrontend:
+    build: 
+      dockerfile: Dockerfile
+      context: ./chatfrontend
+      target: development
+    command: npm run start
+    volumes:
+      - ./chatfrontend:/dev2/chatfrontend/src/app
+      - /dev2/chatfrontend/src/app/node_modules
+    ports:
+      - 4200:4200
+    links:
+      - api
+  mysql:  # Add MySQL service definition
+    image: mysql:latest  # You can choose the version you need
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password  # Set your MySQL root password
+      MYSQL_DATABASE: db  # Set the database name
+      MYSQL_USER: user  # Set a MySQL user
+      MYSQL_PASSWORD: password  # Set the password for the MySQL user
+    ports:
+      - 3306:3306  # Map port 3306 of host to MySQL port 3306
+  
+    
