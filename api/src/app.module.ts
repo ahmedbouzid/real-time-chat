@@ -4,6 +4,7 @@
   import { ConfigModule } from '@nestjs/config';
   import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
+import { UserHeplerService } from './user/service/user-hepler/user-hepler.service';
   import * as path from 'path';
 
   @Module({
