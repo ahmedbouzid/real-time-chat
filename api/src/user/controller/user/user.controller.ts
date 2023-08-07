@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Post, forwardRef } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, forwardRef } from '@nestjs/common';
 import { Observable, of, switchMap } from 'rxjs';
 import { CreateUSerDTO } from '../../model/dto/create-user.dto';
 import { UserService } from '../../service/user/user.service';
 import { Injectable, Inject } from '@nestjs/common';
 import { UserHeplerService } from '../../service/user-hepler/user-hepler.service';
 import { UserI } from '../../model/user.interface';
-
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { LoginUserDTO } from 'src/user/model/dto/login-user.dto';
 @Controller('user')
 export class UserController {
 
@@ -20,10 +21,22 @@ export class UserController {
             switchMap((user : UserI) => this.usersService.create(user))
          )
     }
-    @Get() 
-    findAll(){}
+    @Get()
+    findAll(
+
+        @Query('page') page:number ,
+        @Query ('limit') limit : number = 10
+    ) : Observable<Pagination<UserI>> {
+        limit = limit > 100 ? 100 : limit ;
+        return this.usersService.findAll({page , limit , route:'http://localhost:3000/api/user'})
+        
+    }
 
 
-    @Post()
-    login(){}
+    @Post('login')
+    login(@Body() loginUserDto: LoginUserDTO): Observable<boolean> {
+      return this.userHelperService.loginUserDTO(loginUserDto).pipe(
+        switchMap((user: UserI) => this.usersService.login(user))
+      )
+    }
 }
