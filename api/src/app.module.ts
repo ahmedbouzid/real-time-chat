@@ -5,6 +5,7 @@
   import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { UserHeplerService } from './user/service/user-hepler/user-hepler.service';
+import { AuthModule } from './auth/auth.module';
   import * as path from 'path';
 
   @Module({
@@ -22,6 +23,7 @@ import { UserHeplerService } from './user/service/user-hepler/user-hepler.servic
         synchronize: true,
       }),
       UserModule,
+      AuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],
