@@ -5,6 +5,7 @@ import { UserEntity } from '../../model/user.entity';
 import { UserI } from '../../model/user.interface';
 import { Repository } from 'typeorm';
 import { IPaginationOptions, Pagination, paginate } from 'nestjs-typeorm-paginate';
+import { AuthService } from 'src/auth/service/auth/auth.service';
 
 
 const bcrypt = require('bcrypt')
@@ -15,7 +16,8 @@ export class UserService {
 
     constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepo :Repository<UserEntity>
+    private readonly userRepo :Repository<UserEntity> , 
+    private readonly authService  : AuthService
     ){}
 
     create (newUser : UserI) :Observable<UserI> {
@@ -51,10 +53,7 @@ export class UserService {
         
     }
 
-      hashPassword(password : string ): Observable<string>{
-
-        return from<string>(bcrypt.hash(password , 12))
-    }
+    
 
      findOne(id:number ) : Observable <UserI> {
         return from(this.userRepo.findOne( {where :{id}}))
@@ -91,11 +90,15 @@ export class UserService {
     }
     validatePassword(password: string, storedPasswordHash: string): Observable<any> {
         try {
-            return from(bcrypt.compare(password, storedPasswordHash));
+            return this.authService.comparePAssword(password ,storedPasswordHash)
         } catch (error) {
             console.error('Password validation error:', error);
             throw new HttpException('Password validation failed', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    hashPassword(password : string ): Observable<string>{
+        return this.authService.hashPassword(password)
+    }
+
     
 }
