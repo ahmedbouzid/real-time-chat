@@ -1,2 +1,6 @@
-export interface User {
+export interface UserI {
+
+  email?: string ,
+  username ?: string ,
+  password?: string ,
 }
