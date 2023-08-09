@@ -101,6 +101,8 @@ export class UserService {
     hashPassword(password : string ): Observable<string>{
         return this.authService.hashPassword(password)
     }
-
+    public getOne(id: number): Promise<UserI> {
+        return this.userRepo.findOneOrFail({where :{id}});
+      }
     
 }

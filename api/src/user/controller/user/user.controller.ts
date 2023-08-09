@@ -25,7 +25,7 @@ export class UserController {
     }
 
 
-    @UseGuards(JwtAuthGuard)
+   
     @Get()
     findAll(
 
