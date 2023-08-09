@@ -15,8 +15,8 @@ export class RegisterComponent implements OnInit {
 
 registerForm : FormGroup  = new FormGroup({
   email : new FormControl(null , [Validators.required , Validators.email]) ,
-  username : new FormControl(null , [Validators.required]) ,
   password : new FormControl(null , [Validators.required]),
+  username : new FormControl(null , [Validators.required]) ,
   passwordConfirm : new FormControl(null , [Validators.required])
 },
 {
@@ -30,14 +30,14 @@ private router : Router
 
   ngOnInit(): void {
   }
-   get email (): FormControl{
+  get email (): FormControl{
     return this.registerForm.get('email') as FormControl
-   }
+  }
+  get password () : FormControl {
+   return this.registerForm.get('password') as FormControl
+  }
    get username (): FormControl {
     return this.registerForm.get('username') as FormControl
-   }
-   get password () : FormControl {
-    return this.registerForm.get('password') as FormControl
    }
    get passwordConfirm () : FormControl {
     return this.registerForm.get('passwordConfirm') as FormControl ;
