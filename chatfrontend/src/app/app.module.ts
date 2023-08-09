@@ -8,7 +8,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 /// Angular Material
 
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { JwtModule } from '@auth0/angular-jwt';
 
+export function tokenGetter () {
+  return localStorage.getItem('nestjs_chat_app');
+}
 @NgModule({
   declarations: [
     AppComponent
@@ -18,7 +22,14 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule ,
-    MatSnackBarModule
+    MatSnackBarModule,
+    JwtModule.forRoot({
+      config : {
+        tokenGetter :tokenGetter,
+        allowedDomains : ['localhost:3000']
+      }
+
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]
