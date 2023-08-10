@@ -6,7 +6,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
   import * as path from 'path';
   import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-   import { AuthMiddleware } from './middleware/auth.middleware';  // Use lowercase 'auth.middleware'
+  /*  import { AuthMiddleware } from './middleware/auth.middleware'; */  // Use lowercase 'auth.middleware'
+import { ChatModule } from './chat/chat.module';
   @Module({
     imports: [
       ConfigModule.forRoot({ isGlobal: true }),
@@ -23,12 +24,13 @@ import { AuthModule } from './auth/auth.module';
       }),
       UserModule,
       AuthModule,
+      ChatModule,
     ],
     controllers: [AppController],
     providers: [AppService],
   })
-  export class AppModule  implements NestModule  {
-    configure(consumer: MiddlewareConsumer) {
+  export class AppModule  /* implements NestModule */  {
+   /*  configure(consumer: MiddlewareConsumer) {
       consumer
         .apply(AuthMiddleware)
         .exclude(
@@ -36,6 +38,6 @@ import { AuthModule } from './auth/auth.module';
           {path: '/api/user/login', method: RequestMethod.POST}
         )
         .forRoutes('')
-    }
+    } */
   
 }
