@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
+/* import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../auth/service/auth/auth.service';
 import { UserI } from '../user/model/user.interface';
@@ -34,4 +34,4 @@ export class AuthMiddleware implements NestMiddleware {
     }
   }
 
-}
+} */

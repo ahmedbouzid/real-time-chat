@@ -10,9 +10,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { JwtModule } from '@auth0/angular-jwt';
 
+
+
 export function tokenGetter () {
   return localStorage.getItem('nestjs_chat_app');
 }
+
 @NgModule({
   declarations: [
     AppComponent
@@ -29,7 +32,10 @@ export function tokenGetter () {
         allowedDomains : ['localhost:3000']
       }
 
-    })
+    }),
+
+
+
   ],
   providers: [],
   bootstrap: [AppComponent]

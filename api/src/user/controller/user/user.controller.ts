@@ -9,6 +9,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { LoginUserDTO } from 'src/user/model/dto/login-user.dto';
 import { LoginResponseI } from 'src/user/model/dto/login-response.interface';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+
 @Controller('user')
 export class UserController {
 
@@ -25,10 +26,10 @@ export class UserController {
     }
 
 
-   
+    @UseGuards(JwtAuthGuard)
     @Get()
     findAll(
-
+      
         @Query('page') page:number ,
         @Query ('limit') limit : number = 10
     ) : Observable<Pagination<UserI>> {
