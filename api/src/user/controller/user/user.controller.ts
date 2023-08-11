@@ -31,7 +31,7 @@ export class UserController {
     findAll(
       
         @Query('page') page:number ,
-        @Query ('limit') limit : number = 10
+        @Query ('limit') limit : number = 20
     ) : Observable<Pagination<UserI>> {
         limit = limit > 100 ? 100 : limit ;
         return this.usersService.findAll({page , limit , route:'http://localhost:3000/api/user'})
