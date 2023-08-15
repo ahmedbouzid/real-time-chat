@@ -1,7 +1,6 @@
 
 
 
-
 export interface Meta {
   totalItems: number;
   itemCount: number;
