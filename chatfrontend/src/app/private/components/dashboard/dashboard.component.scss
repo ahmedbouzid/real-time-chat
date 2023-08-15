@@ -1,0 +1,10 @@
+.container {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+  min-width: 350px;
+}
+.main {
+  display: flex;
+  flex-direction: row;
+}
