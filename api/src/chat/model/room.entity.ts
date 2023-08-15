@@ -11,16 +11,17 @@ export class RoomEntity {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
+  @Column({nullable: true})
   description: string;
 
-  @ManyToMany(() => UserEntity) 
+  @ManyToMany(() => UserEntity)
   @JoinTable()
   users: UserEntity[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
+
 }
