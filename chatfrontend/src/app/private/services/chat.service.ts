@@ -8,13 +8,9 @@ import { UserI } from 'src/app/model/user.interface';
   providedIn: 'root'
 })
 export class ChatService {
-
   constructor(private socket: CustomSocket) { }
-
   sendMessage() {
-    
   }
-
   getMessage() {
     return this.socket.fromEvent('message');
   }
@@ -22,10 +18,12 @@ export class ChatService {
   getMyRooms() {
     return this.socket.fromEvent<RoomPaginateI>('rooms');
   }
-
+  emitPaginateRooms(limit: number, page: number) {
+    this.socket.emit('paginateRooms', {limit, page});
+  }
   createRoom() {
     const user2: UserI = {
-      id: 1
+      id: 5
     };
 
     const room: RoomI = {
@@ -35,4 +33,5 @@ export class ChatService {
 
     this.socket.emit('createRoom', room);
   }
+
 }
