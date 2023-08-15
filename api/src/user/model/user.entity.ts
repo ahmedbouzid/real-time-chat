@@ -2,29 +2,21 @@ import { RoomEntity } from "src/chat/model/room.entity";
 import { BeforeInsert, Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-@Entity()
 export class UserEntity {
-
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
+  @Column({unique: true})
   username: string;
-
-  @Column()
-  password: string;
-
-  @Column()
+  @Column({unique: true})
   email: string;
+  @Column({select: false})
+  password: string;
 
   @ManyToMany(() => RoomEntity, room => room.users)
   rooms: RoomEntity[]
- 
 
-
-        @BeforeInsert()
-        emailToLowerCase() {
-            this.email = this.email.toLowerCase()
-        }
-        
-    }
+  @BeforeInsert()
+  emailToLowerCase() {
+    this.email = this.email.toLowerCase();
+  }
+}
