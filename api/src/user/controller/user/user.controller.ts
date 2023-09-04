@@ -19,39 +19,38 @@ export class UserController {
         @Inject(forwardRef(() => UserHeplerService))  private userHelperService : UserHeplerService
     ){}
     @Post()
-    create(@Body() createUserDTO : CreateUSerDTO):Observable<UserI> {
-       return  this.userHelperService.createUserDTOToEntity(createUserDTO).pipe(
-            switchMap((user : UserI) => this.usersService.create(user))
-         )
+   async create(@Body() createUserDTO : CreateUSerDTO):Promise<UserI> {
+    const userEntity :UserI = this.userHelperService.createUserDTOToEntity(createUserDTO) ;
+    return this.usersService.create(userEntity)
+
     }
 
 
     @UseGuards(JwtAuthGuard)
     @Get()
-    findAll(
+    async  findAll(
       
         @Query('page') page:number ,
         @Query ('limit') limit : number = 20
-    ) : Observable<Pagination<UserI>> {
+    ) : Promise<Pagination<UserI>> {
         limit = limit > 100 ? 100 : limit ;
         return this.usersService.findAll({page , limit , route:'http://localhost:3000/api/user'})
         
     }
+@Get('/find-by-username')
+async findAllByUsername(@Query('username') username : string) {
+  return this.usersService.findAllByUsername(username) ;
 
-
+}
     @Post('login')
-    login(@Body() loginUserDto: LoginUserDTO): Observable<LoginResponseI> {
-      return this.userHelperService.loginUserDTO(loginUserDto).pipe(
-        switchMap((user: UserI) => this.usersService.login(user).pipe (
-          map((jwt : string)=> {
-            return {
-              accesToken : jwt ,
-              tokenType : 'JWT' ,
-              expiresIn : 100000
-            }
-          
-          })
-        ))
-      )
+    async login(@Body() loginUserDto: LoginUserDTO): Promise<LoginResponseI> {
+      const userEntity : UserI = this.userHelperService.loginUserDTO(loginUserDto) ;
+      const jwt : string = await this.usersService.login(userEntity) ;
+      return {
+        accesToken : jwt ,
+        tokenType : 'JWT' ,
+        expiresIn : 100000
+      }
+
     }
 }
