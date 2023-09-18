@@ -36,4 +36,8 @@ export class UserServiceService {
       })
     );
   }
+
+  findByUsername(username :string) : Observable<UserI[]> {
+    return this.http.get<UserI[]> (`api/user/find-by-username?username=${username}`) ;
+  }
 }
