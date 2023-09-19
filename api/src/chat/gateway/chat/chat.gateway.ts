@@ -7,6 +7,8 @@ import { UnauthorizedException } from '@nestjs/common';
 import { RoomService } from 'src/chat/service/room-service/room/room.service';
 import { RoomI } from 'src/chat/model/room.interface';
 import { PageI } from 'src/chat/model/page.interface';
+import { ConnectedUserService } from 'src/chat/service/connected-user/connected-user.service';
+import { ConnectUserI } from 'src/chat/model/connected-user.interface';
 
 @WebSocketGateway({ cors: { origin: ['https://hoppscotch.io', 'http://localhost:3000', 'http://localhost:4200'] } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -19,7 +21,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private authService: AuthService, 
     private userService: UserService , 
-    private roomService : RoomService
+    private roomService : RoomService ,
+    private connectedUserService : ConnectedUserService
     ) {}
 
     async handleConnection(socket: Socket) {
@@ -33,7 +36,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           const rooms = await this.roomService.getRoomsForUser(user.id, { page: 1, limit: 10 });
           // substract page -1 to match the angular material paginator
           rooms.meta.currentPage = rooms.meta.currentPage - 1;
-  
+          // *** Save Connection to data base 
+          await this.connectedUserService.create({sockedId: socket.id , user})
           // Only emit rooms to the specific connected client
           return this.server.to(socket.id).emit('rooms', rooms);
         }
@@ -42,7 +46,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
 
-    handleDisconnect(socket: Socket) {
+   async handleDisconnect(socket: Socket) {
+      // *** remove Connection from db 
+      await this.connectedUserService.deleteBySocketId(socket.id) ;
       socket.disconnect();
     }
     private disconnect(socket: Socket) {
@@ -53,8 +59,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
     @SubscribeMessage('createRoom')
-    async onCreateRoom(socket: Socket, room: RoomI): Promise<RoomI> {
-      return this.roomService.createRoom(room, socket.data.user)
+    async onCreateRoom(socket: Socket, room: RoomI) {
+      const createdRoom : RoomI= await this.roomService.createRoom(room ,socket.data.user)
+      
+      for (const user of createdRoom.users) {
+        const connections : ConnectUserI[] = await this.connectedUserService.finfByUser(user);
+        const rooms = await this.roomService.getRoomsForUser(user.id, {page : 1 ,limit:10}) ;
+        
+        for(const connection of connections) {
+          await this.server.to(connection.sockedId).emit('rooms' , rooms) ; 
+        }
+       }
     }
  
     @SubscribeMessage('paginateRooms')
