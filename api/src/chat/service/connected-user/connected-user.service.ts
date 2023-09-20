@@ -8,20 +8,21 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class ConnectedUserService {
 
-    constructor(
+  constructor(
+    @InjectRepository(ConnectedUserEntity)
+    private readonly connectedUserRepository: Repository<ConnectedUserEntity>
+  ) {}
 
-        @InjectRepository(ConnectedUserEntity)
-        private readonly connectedUserRepository : Repository<ConnectedUserEntity>
-    ) {}
+  async create(connectedUser: ConnectUserI): Promise<ConnectUserI> {
+    return this.connectedUserRepository.save(connectedUser);
+  }
 
-    async create(connectedUser : ConnectUserI) : Promise<ConnectUserI> {
-        return this.connectedUserRepository.save(connectedUser)
-    }
-    async finfByUser(user : UserI) : Promise <ConnectUserI[]> {
-        return this.connectedUserRepository.find({ where: { user } });
-    }
+  async findByUser(user: UserI): Promise<ConnectUserI[]> {
+    return this.connectedUserRepository.find({where :{user}});
+  }
 
-    async deleteBySocketId(socketId : string)  {
-        return this.connectedUserRepository.delete({socketId})
-    }
+  async deleteBySocketId(socketId: string) {
+    return this.connectedUserRepository.delete({socketId});
+  }
+
 }
