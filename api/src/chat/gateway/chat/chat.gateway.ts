@@ -3,7 +3,7 @@ import { AuthService } from 'src/auth/service/auth/auth.service';
 import {Socket, Server} from 'socket.io';
 import { UserI } from 'src/user/model/user.interface';
 import { UserService } from 'src/user/service/user/user.service';
-import { UnauthorizedException } from '@nestjs/common';
+import { OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { RoomService } from 'src/chat/service/room-service/room/room.service';
 import { RoomI } from 'src/chat/model/room.interface';
 import { PageI } from 'src/chat/model/page.interface';
@@ -11,7 +11,7 @@ import { ConnectedUserService } from 'src/chat/service/connected-user/connected-
 import { ConnectUserI } from 'src/chat/model/connected-user.interface';
 
 @WebSocketGateway({ cors: { origin: ['https://hoppscotch.io', 'http://localhost:3000', 'http://localhost:4200'] } })
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect , OnModuleInit {
 
   @WebSocketServer()
   server: Server;
@@ -24,6 +24,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private roomService : RoomService ,
     private connectedUserService : ConnectedUserService
     ) {}
+
+    async onModuleInit() {
+      await this.connectedUserService.deleteAll();
+    }
 
     async handleConnection(socket: Socket) {
       try {
