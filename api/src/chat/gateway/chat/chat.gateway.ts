@@ -9,6 +9,10 @@ import { RoomI } from 'src/chat/model/room.interface';
 import { PageI } from 'src/chat/model/page.interface';
 import { ConnectedUserService } from 'src/chat/service/connected-user/connected-user.service';
 import { ConnectUserI } from 'src/chat/model/connected-user.interface';
+import { JoinedRoomService } from 'src/chat/service/joined-room/joined-room.service';
+import { MessageService } from 'src/chat/service/message/message.service';
+import { MessageI } from 'src/chat/model/message/messages.interface';
+import { JoinedRoomI } from 'src/chat/model/joined-room/joined-room.interface';
 
 @WebSocketGateway({ cors: { origin: ['https://hoppscotch.io', 'http://localhost:3000', 'http://localhost:4200'] } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect , OnModuleInit {
@@ -22,11 +26,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect , O
     private authService: AuthService, 
     private userService: UserService , 
     private roomService : RoomService ,
-    private connectedUserService : ConnectedUserService
+    private connectedUserService : ConnectedUserService ,
+    private joinedRoomService : JoinedRoomService ,
+    private messageService : MessageService
     ) {}
 
     async onModuleInit() {
       await this.connectedUserService.deleteAll();
+      await this.joinedRoomService.deleteAll() ;
+
     }
 
     async handleConnection(socket: Socket) {
@@ -69,6 +77,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect , O
       for (const user of createdRoom.users) {
         const connections: ConnectUserI[] = await this.connectedUserService.findByUser(user);
         const rooms = await this.roomService.getRoomsForUser(user.id, { page: 1, limit: 10 });
+        // *** substract page -1 match the angular material paginator 
+        rooms.meta.currentPage = rooms.meta.currentPage - 1 ;
         for (const connection of connections) {
           await this.server.to(connection.socketId).emit('rooms', rooms);
         }
@@ -77,14 +87,41 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect , O
  
     @SubscribeMessage('paginateRooms')
     async onPaginateRoom(socket: Socket, page: PageI) {
-      page.limit = page.limit > 100 ? 100 : page.limit;
-      // add page +1 to match angular material paginator
-      page.page = page.page + 1;
-      const rooms = await this.roomService.getRoomsForUser(socket.data.user.id, page);
+
+      const rooms = await this.roomService.getRoomsForUser(socket.data.user.id,  this.handleIncomingPageRequest(page));
       // substract page -1 to match the angular material paginator
       rooms.meta.currentPage = rooms.meta.currentPage - 1;
       return this.server.to(socket.id).emit('rooms', rooms);
     }
-  
+
+@SubscribeMessage('joinRoom')
+async onJoinRoom(socket : Socket , room : RoomI) {
+  const messages = await this.messageService.findMessagesForRoom(room , {limit : 10 , page : 1})
+  messages.meta.currentPage = messages.meta.currentPage - 1 ;
+  //  *** save connexion to room
+  await this.joinedRoomService.create({socketId : socket.id , user : socket.data.user , room})
+  // *** send last messages from room to User
+
+  await this.server.to(socket.id).emit('messages' , messages)
+}
+@SubscribeMessage('leaveRoom')
+async onLeaveRoom(socket : Socket){
+  // *** Remove connection from joinded Rooms
+  await this.joinedRoomService.deleteBySocketId(socket.id)
+}
+@SubscribeMessage('addMessage')
+async onAddMessage(socket : Socket , message : MessageI) {
+  const createdMessage : MessageI = await this.messageService.create({...message , user : socket.data.user}) ;
+  const room : RoomI = await this.roomService.getRoom(createdMessage.room.id) ;
+  const joinedUsers : JoinedRoomI[] = await this.joinedRoomService.findByRoom(room) ;
+  // *** TO Do Send new Message to all joined user of the room (currentlu online)
+}
+
+  private handleIncomingPageRequest(page : PageI) {
+    page.limit = page.limit > 100 ? 100 : page.limit;
+    // add page +1 to match angular material paginator
+    page.page = page.page + 1;
+    return page
+  }
 
 }

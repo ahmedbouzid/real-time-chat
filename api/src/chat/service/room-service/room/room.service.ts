@@ -21,6 +21,15 @@ export class RoomService {
     return this.roomRepository.save(newRoom);
   }
 
+  async getRoom(roomId: number): Promise<RoomI | any> {
+    const room = await this.roomRepository.findOne({
+      where: { id: roomId },
+      relations: ['users'],
+    });
+  
+    return room;
+  }
+
   async getRoomsForUser(userId: number, options: IPaginationOptions): Promise<Pagination<RoomI>> {
     const query = this.roomRepository
     .createQueryBuilder('room')
@@ -36,5 +45,7 @@ export class RoomService {
     room.users.push(creator);
     return room;
   }
+
+
 
 }

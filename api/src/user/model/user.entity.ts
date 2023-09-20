@@ -1,4 +1,6 @@
 import { ConnectedUserEntity } from "src/chat/model/connected-user.entity";
+import { JoinedRooEntity } from "src/chat/model/joined-room/joined-room.entity";
+import { MessageEntity } from "src/chat/model/message/message.entity";
 import { RoomEntity } from "src/chat/model/room.entity";
 import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -19,7 +21,12 @@ export class UserEntity {
   @OneToMany(() => ConnectedUserEntity, connection => connection.user)
   connections: ConnectedUserEntity[];
 
+  @OneToMany(() =>  JoinedRooEntity , joinedRoom => joinedRoom.room)
+  joinedRooms : JoinedRooEntity[] ;
 
+  @OneToMany(() => MessageEntity , message => message.user)
+  messages : MessageEntity[] ;
+  
   @BeforeInsert()
   @BeforeUpdate()
   emailToLowerCase()
