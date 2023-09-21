@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { MessagePaginateInterface } from 'src/app/model/message.interface';
 import { RoomI } from 'src/app/model/room.interface';
 import { ChatService } from '../../services/chat.service';
@@ -14,7 +14,14 @@ export class ChatRoomComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() chatRoom: RoomI;
 
-  messages$: Observable<MessagePaginateInterface> = this.chatService.getMessages();
+  messages$: Observable<MessagePaginateInterface> = this.chatService.getMessages().pipe(
+    map((messagePaginate : MessagePaginateInterface) => {
+      const items = messagePaginate.items.sort((a , b) => new Date (a.created_at).getTime()- new Date (b.created_at).getTime()) ;
+      messagePaginate.items = items ;
+      return messagePaginate ;
+    })
+
+  );
 
   chatMessage: FormControl = new FormControl(null, [Validators.required]);
 
