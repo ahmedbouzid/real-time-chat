@@ -39,5 +39,8 @@ export class ChatService {
       duration: 2000, horizontalPosition: 'right', verticalPosition: 'top'
     });
   }
+  getAddedMessage(): Observable<MessageI> {
+    return this.socket.fromEvent<MessageI>('messageAdded');
+  }
 
 }
