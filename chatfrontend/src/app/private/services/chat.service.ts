@@ -13,11 +13,19 @@ import { MessageI, MessagePaginateInterface } from 'src/app/model/message.interf
 export class ChatService {
   constructor(private socket: CustomSocket , private snackBar : MatSnackBar   ) { }
   sendMessage(message: MessageI) {
-    this.socket.emit('addMessage', message);
+    try {
+      this.socket.emit('addMessage', message);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   }
 
   joinRoom(room: RoomI) {
-    this.socket.emit('joinRoom', room);
+    try {
+      this.socket.emit('joinRoom', room);
+    } catch (error) {
+      console.error('Error joining room:', error);
+    }
   }
 
   leaveRoom(room: RoomI) {
@@ -42,5 +50,6 @@ export class ChatService {
   getAddedMessage(): Observable<MessageI> {
     return this.socket.fromEvent<MessageI>('messageAdded');
   }
+  
 
 }

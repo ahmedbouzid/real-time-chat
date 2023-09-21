@@ -14,7 +14,7 @@ import { FormControl, Validators } from '@angular/forms';
 export class ChatRoomComponent implements  OnChanges, OnDestroy ,AfterViewInit  {
 
   @Input() chatRoom: RoomI;
-  @ViewChild('messages') private messagesScroller: ElementRef;
+  @ViewChild('messages') messages : ElementRef;
 
   messagesPaginate$: Observable<MessagePaginateInterface> = combineLatest([this.chatService.getMessages(), this.chatService.getAddedMessage().pipe(startWith(null))]).pipe(
     map(([messagePaginate, message]) => {
@@ -23,25 +23,29 @@ export class ChatRoomComponent implements  OnChanges, OnDestroy ,AfterViewInit  
       }
       const items = messagePaginate.items.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       messagePaginate.items = items;
+       console.log(messagePaginate);
       return messagePaginate;
-          }) ,
-          tap(() => this.scrollToBottom())
-    )
 
+
+
+    }),
+    tap(() => this.scrollToBottom())
+  )
 
   chatMessage: FormControl = new FormControl(null, [Validators.required]);
 
   constructor(private chatService: ChatService) { }
 
+
   ngOnInit(): void {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if(this.chatRoom) {
+    this.chatService.leaveRoom(changes['chatRoom'].previousValue);
+    if (this.chatRoom) {
       this.chatService.joinRoom(this.chatRoom);
     }
   }
-
   ngAfterViewInit() {
     this.scrollToBottom();
   }
@@ -51,11 +55,11 @@ export class ChatRoomComponent implements  OnChanges, OnDestroy ,AfterViewInit  
   }
 
   sendMessage() {
-    this.chatService.sendMessage({text: this.chatMessage.value, room: this.chatRoom});
+    this.chatService.sendMessage({ text: this.chatMessage.value, room: this.chatRoom });
     this.chatMessage.reset();
   }
   scrollToBottom(): void {
-    setTimeout(() => {this.messagesScroller.nativeElement.scrollTop = this.messagesScroller.nativeElement.scrollHeight}, 1);
+    setTimeout(() => {this.messages.nativeElement.scrollTop = this.messages.nativeElement.scrollHeight}, 1);
   }
 
 
